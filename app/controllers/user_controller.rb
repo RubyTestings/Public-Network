@@ -1,3 +1,6 @@
+
+require 'digest/sha1'
+
 class UserController < ApplicationController
 
   #layout "site"
@@ -17,7 +20,6 @@ class UserController < ApplicationController
     @title = "Profile page"
 
   end
-
 
   def register
     @title = "Registration"
@@ -60,7 +62,10 @@ class UserController < ApplicationController
             :value => "1",
             :expires => 10.years.form_now 
           }
-          user.authorization_token = user.id
+
+          user.authorization_token = Digest::SHA2.hexdigest(
+            "#{user.screen_name}:#{user.password}"
+          )
           user.save!
           cookies[:authorization_token] = {
             :value => user.authorization_token,
@@ -81,7 +86,7 @@ class UserController < ApplicationController
   end
 
   def logout
-    User.logout!(session)
+    User.logout!(session,cookies)
     flash[:notice] = "Logged out"
     redirect_to :controller => "site", :action => "index"
   end

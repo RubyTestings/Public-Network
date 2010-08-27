@@ -127,11 +127,11 @@ class UserControllerTest < Test::Unit::TestCase
 
   #test valid login
   def test_login_success
-    #try_to_login @valid_user
-    post :login, :user => { :screen_name => @valid_user.screen_name,
-                            :password => user.password
-                          }
-    #assert  logged_in?
+    try_to_login @valid_user
+    #post :login, :user => { :screen_name => @valid_user.screen_name,
+    #                        :password => @valid_user.password
+    #                      }
+    assert  logged_in?
     assert_equal @valid_user.id, session[:user_id]
     assert_equal "User #{@valid_user.screen_name} logged in.", flash[:notice]
     assert_redirected_to :action => "index"
@@ -210,7 +210,7 @@ class UserControllerTest < Test::Unit::TestCase
              :email => @valid_user.email,
              :password => @valid_user.password
            }
-    friendly_url_forwarding_aux(:register, :index, user)
+    friendly_url_forwarding_aux(:register, :profile, user)
   end
 
   private
@@ -241,7 +241,7 @@ class UserControllerTest < Test::Unit::TestCase
     assert_response :redirect
     assert_redirected_to :action => "login"
     post test_page, :user => user
-    assert_response :redirect
+    assert_response :success
     assert_redirected_to :action => protected_page
 
     assert_nil session[:protected_page]

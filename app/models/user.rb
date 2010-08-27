@@ -46,9 +46,10 @@ class User < ActiveRecord::Base
   end
 
   #logout user
-  def self.logout!(session)
+  def self.logout!(session,cookies)
     session[:user_id] = nil
     session[:screen_name] = nil
+    cookies.delete(:authorization_key)
   end
 
   #Clear the password field
