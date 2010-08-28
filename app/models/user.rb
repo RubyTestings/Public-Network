@@ -1,3 +1,6 @@
+
+require 'digest/sha1'
+
 class User < ActiveRecord::Base
 
   SCREEN_NAME_MIN_LENGTH = 4
@@ -12,6 +15,8 @@ class User < ActiveRecord::Base
   SCREEN_NAME_SIZE = 20
   PASSWORD_SIZE = 10
   EMAIL_SIZE = SCREEN_NAME_SIZE
+  
+  COOKIES_EXPIRATION_TIME = 1
 
   attr_accessor   :remember_me
   
@@ -29,6 +34,7 @@ class User < ActiveRecord::Base
   validates_format_of      :email,
                            :with => /^[A-Z0-9\._\-]+@([A-Z0-9\-]+\.){1,3}[A-Z]{2,4}$/i,
                            :message => "must be a valid address"
+  
                          
   #def validate
   #  errors.add(:email, "must Contain @.") unless email.include? ("@")
@@ -50,8 +56,45 @@ class User < ActiveRecord::Base
     cookies.delete :authorization_token
   end
 
+  #remember user if remember me checked
+  def remember!(cookies)
+    expiration_time = COOKIES_EXPIRATION_TIME.years.from_now
+    cookies[:remember_me] = {
+      :value => "1",
+      :expires => expiration_time
+    }
+    
+    self.authorization_token = unique_identifier
+
+    save!
+    cookies[:authorization_token] = {
+      :value => authorization_token,
+      :expires => expiration_time
+    }
+  end
+
+  #function to check whether the user is remembered or not
+  def remember_me?
+    remember_me == "1"
+  end
+
+
+
+  #function to delete all information about user account
+  def forget!(cookies)
+    cookies.delete(:remember_me)
+    cookies.delete(:authorization_token)
+  end
+
   #Clear the password field
   def clear_password!
     self.password = nil
+  end
+
+  private
+
+  #generation of unique session hash
+  def unique_identifier
+    Digest::SHA2.hexdigest("#{screen_name}:#{password}")
   end
 end

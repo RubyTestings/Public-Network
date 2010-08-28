@@ -1,6 +1,4 @@
 
-require 'digest/sha1'
-
 class UserController < ApplicationController
 
   #layout "site"
@@ -44,7 +42,7 @@ class UserController < ApplicationController
   def login
     @title = "Login Page"
     if request.get?
-      @user = User.new( :remember_me => cookies[:remember_me] || "0")
+      @user = User.new( :remember_me => remember_me_value)
 
     elsif param_posted?(:user)
 
@@ -57,24 +55,13 @@ class UserController < ApplicationController
         #session[:screen_name] = user.screen_name
         user.login!(session)
         
-        if @user.remember_me == "1"
-          cookies[:remember_me] = {
-            :value => "1",
-            :expires => 10.years.from_now
-          }
+        #if @user.remember_me?
+        #  user.remember_me!(cookies)
+        #else
+        #  user.forget!(cookies)
+        #end
 
-          user.authorization_token = Digest::SHA2.hexdigest(
-            "#{user.screen_name}:#{user.password}"
-          )
-          user.save!
-          cookies[:authorization_token] = {
-            :value => user.authorization_token,
-            :expires => 10.years.from_now
-          }
-        else
-          cookies.delete(:remember_me)
-          cookies.delete(:authorization_token)
-        end
+        @user.remember_me? ? user.remember!(cookies) : user.forget!(cookies)
         
         flash[:notice] = "User " + @user.screen_name + " logged in."
         redirect_to_forwarding_url
@@ -108,7 +95,7 @@ class UserController < ApplicationController
   def param_posted?(symbol)
     request.post? and params[symbol]
   end
-ee
+
   #redirecting to Url if it is setted
   def redirect_to_forwarding_url
     if (redirect_url = session[:protected_page])
@@ -117,6 +104,11 @@ ee
     else
       redirect_to :action => "index"
     end
+  end
+
+  #function to return the string value of remember me status
+  def remember_me_value
+    cookies[:remember_me] || "0"
   end
   
 end

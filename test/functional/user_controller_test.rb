@@ -160,8 +160,9 @@ class UserControllerTest < Test::Unit::TestCase
     user = User.find(@valid_user.id)
 
     assert_equal "1", cookie_value(:remember_me)
-    assert_equal 10.years.from_now(test_time).to_s, cookie_expires(:remember_me).to_s
     
+    assert_equal User::COOKIES_EXPIRATION_TIME.years.from_now(test_time).to_s,
+                 cookie_expires(:remember_me).to_s
     #time_delta = 1000
     #assert_in_delta 10.years.from_now(test_time),
     #                cookie_expires(:remember_me),
@@ -170,7 +171,9 @@ class UserControllerTest < Test::Unit::TestCase
     #Authorization cookie
     cookie_token = cookies["authorization_token"].value.to_s
     assert_equal user.authorization_token, cookie_value(:authorization_token)
-    assert_equal 10.years.from_now(test_time).to_s, cookie_expires(:authorization_token).to_s
+
+    assert_equal User::COOKIES_EXPIRATION_TIME.years.from_now(test_time).to_s,
+                 cookie_expires(:authorization_token).to_s
 
   end
   
