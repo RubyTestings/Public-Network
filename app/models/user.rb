@@ -19,8 +19,10 @@ class User < ActiveRecord::Base
   COOKIES_EXPIRATION_TIME = 1
 
   attr_accessor   :remember_me
+  attr_accessor   :current_password
   
   validates_uniqueness_of  :screen_name, :email
+  validates_confirmation_of :password
   validates_length_of      :screen_name, :within => SCREEN_NAME_RANGE
   validates_length_of      :password,    :within => PASSWORD_RANGE
   validates_length_of      :email,       :maximum => EMAIL_MAX_LENGTH
@@ -78,8 +80,6 @@ class User < ActiveRecord::Base
     remember_me == "1"
   end
 
-
-
   #function to delete all information about user account
   def forget!(cookies)
     cookies.delete(:remember_me)
@@ -89,6 +89,28 @@ class User < ActiveRecord::Base
   #Clear the password field
   def clear_password!
     self.password = nil
+    self.current_password = nil
+    self.password_confirmation = nil
+  end
+
+  #print password with stars  
+  def password_in_stars
+    (self.password.count("*") < 8) ? "*" * 8 : "*" * self.password.count("*")
+  end
+  
+  #check whether password are correct
+  def correct_password?(params)
+    current_password = params[:user][:current_password]
+    password == current_password
+  end
+
+  #generate message for incorrect password
+  def password_errors(params)
+    #have to check for security of this method
+    self.password = params[:user][:password]
+    self.password_confirmation = params[:user][:password_confirmation]
+    valid?
+    errors.add(:current_password, "is incorrect")
   end
 
   private
@@ -97,4 +119,5 @@ class User < ActiveRecord::Base
   def unique_identifier
     Digest::SHA2.hexdigest("#{screen_name}:#{password}")
   end
+
 end

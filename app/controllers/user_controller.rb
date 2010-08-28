@@ -10,13 +10,38 @@ class UserController < ApplicationController
   def index
 
     @title = "Main Page"
+    @user = User.find(session[:user_id])
 
   end
 
   def profile
-
     @title = "Profile page"
+  end
 
+  def edit
+    @title = "Edit info"
+    @user = User.find(session[:user_id])
+
+    if param_posted?(:user)
+      attribute = params[:attribute]
+      case attirbute
+        when "email"
+          try_to_update @user, attribute
+        when "password"
+          #
+          if @user.correct_password?(params)
+            try_to_update @user, attribute
+          else
+            @user.password_errors(params)
+          end
+      end
+      if @user.update_attributes(params[:user])
+        flash[:notice] = "Email update."
+        redirect_to :action => "index"
+      end
+    end
+
+    @user.clear_password!
   end
 
   def register
@@ -78,7 +103,6 @@ class UserController < ApplicationController
     redirect_to :controller => "site", :action => "index"
   end
 
-
   private
 
   #redirecting in case not logged in
@@ -109,6 +133,13 @@ class UserController < ApplicationController
   #function to return the string value of remember me status
   def remember_me_value
     cookies[:remember_me] || "0"
+  end
+
+  def try_to_update( user, attribute )
+    if user.update_attribues(params[:user])
+      flash[:notice] = "User #{attribute} updated"
+      redirect_to :action => "index"
+    end
   end
   
 end
