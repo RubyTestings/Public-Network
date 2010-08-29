@@ -15,6 +15,16 @@ class UserControllerTest < Test::Unit::TestCase
     @valid_user = users(:valid_user)
   end
 
+  def test_screen_name_length_boundaries
+    assert_length :min, @valid_user, :screen_name, User::SCREEN_NAME_MIN_LENGTH
+    assert_length :max, @valid_user, :screen_name, User::SCREEN_NAME_MAX_LENGTH
+  end
+
+  def test_password_length_boundaries
+    assert_length :min, @valid_user, :password, User::PASSWORD_MIN_LENGTH
+    assert_length :max, @valid_user, :password, User::PASSWORD_MAX_LENGTH
+  end
+
   # Replace this with your real tests.
   def test_registration_page
     get :register
@@ -23,27 +33,46 @@ class UserControllerTest < Test::Unit::TestCase
     assert_response :success
     assert_template "register"
 
-    assert_tag "form", :attributes => {:action => "/user/register",
-                                       :method => "post"
-                                      }
-    assert_tag "input", :attributes => { :name => "user[screen_name]",
-                                         :type => "text",
-                                         :size => User::SCREEN_NAME_SIZE,
-                                         :maxlength => User::SCREEN_NAME_MAX_LENGTH
+    assert_form_tag "/user/register"
+    assert_screen_name_field
+    assert_email_field
+    assert_password_field
+    assert_submit_button "Register!"
+    
+  end
+
+  #make sure the login page works and all fields are correct
+  def test_login_page
+    get :login
+    title = assigns(:title)
+
+    assert_equal "Login Page", title
+    assert_response :success
+    assert_template "login"
+    assert_form_tag "/user/login"
+    assert_screen_name_field
+    assert_password_field
+    assert_tag "input", :attributes => { :name => "user[remember_me]",
+                                         :type => "checkbox"
                                        }
-    assert_tag "input", :attributes => { :name => "user[email]",
-                                         :type => "text",
-                                         :size => User::EMAIL_SIZE,
-                                         :maxlength => User::EMAIL_MAX_LENGTH
-                                       }
-    assert_tag "input", :attributes => { :name => "user[password]",
-                                         :type => "password",
-                                         :size => User::PASSWORD_SIZE,
-                                         :maxlength => User::PASSWORD_MAX_LENGTH
-                                       }
-    assert_tag "input", :attributes => { :type => "submit",
-                                         :value => "Register!"
-                                       }
+    assert_submit_button "Login!"
+  end
+
+  def test_edit_page
+    authorize @valid_user
+    get :edit
+    title = assigns(:title)
+    assert_equal "Edit info", title
+    assert_response :success
+    assert_template "edit"
+
+    assert_form_tag "/user/edit"
+    assert_email_field @valid_user.email
+    assert_password_field "current_password"
+    assert_password_field
+    assert_password_field "password_confirmation"
+    assert_submit_button "Update"
+
   end
 
   def test_registration_success
@@ -98,36 +127,7 @@ class UserControllerTest < Test::Unit::TestCase
                                       },
                        :parent => error_div
   end
-
-  #make sure the login page works and all fields are correct
-  def test_login_page
-    get :login
-    title = assigns(:title)
-
-    assert_equal "Login Page", title
-    assert_response :success
-    assert_template "login"
-    assert_tag "form", :attributes => { :action => "/user/login",
-                                        :method => "post"
-                                      }
-    assert_tag "input", :attributes => { :name => "user[screen_name]",
-                                         :type => "text",
-                                         :size => User::SCREEN_NAME_SIZE,
-                                         :maxlength => User::SCREEN_NAME_MAX_LENGTH
-                                       }
-    assert_tag "input", :attributes => { :name => "user[password]",
-                                         :type => "password",
-                                         :size => User::PASSWORD_SIZE,
-                                         :maxlength => User::PASSWORD_MAX_LENGTH
-                                       }
-    assert_tag "input", :attributes => { :name => "user[remember_me]",
-                                         :type => "checkbox"
-                                       }
-    assert_tag "input", :attributes => { :type => "submit",
-                                         :value => "Login!"
-                                       }
-  end
-
+  
   #test valid login
   def test_login_success
     try_to_login @valid_user, :remember_me => "0"
@@ -161,20 +161,22 @@ class UserControllerTest < Test::Unit::TestCase
 
     assert_equal "1", cookie_value(:remember_me)
     
-    assert_equal User::COOKIES_EXPIRATION_TIME.years.from_now(test_time).to_s,
-                 cookie_expires(:remember_me).to_s
-    #time_delta = 1000
-    #assert_in_delta 10.years.from_now(test_time),
-    #                cookie_expires(:remember_me),
-    #                time_delta
+    #assert_equal User::COOKIES_EXPIRATION_TIME.years.from_now(test_time).to_s,
+    #             cookie_expires(:remember_me).to_s
+    time_delta = 10000
+    assert_in_delta User::COOKIES_EXPIRATION_TIME.years.from_now(test_time),
+                    cookie_expires(:remember_me),
+                    time_delta
     
     #Authorization cookie
-    cookie_token = cookies["authorization_token"].value.to_s
+    #cookie_token = cookies["authorization_token"].value.to_s
     assert_equal user.authorization_token, cookie_value(:authorization_token)
 
-    assert_equal User::COOKIES_EXPIRATION_TIME.years.from_now(test_time).to_s,
-                 cookie_expires(:authorization_token).to_s
-
+    #assert_equal User::COOKIES_EXPIRATION_TIME.years.from_now(test_time).to_s,
+    #             cookie_expires(:authorization_token).to_s
+    assert_in_delta User::COOKIES_EXPIRATION_TIME.years.from_now(test_time),
+                    cookie_expires(:authorization_token),
+                    time_delta
   end
   
   #test invalid login
@@ -257,6 +259,42 @@ class UserControllerTest < Test::Unit::TestCase
   end
 
   private
+  
+  #assert that the email field has a correct HTML
+  def assert_email_field(email = nil, options = {})
+    assert_input_field( 
+      "text",
+      "user[email]",
+      email, 
+      User::EMAIL_SIZE,
+      User::EMAIL_MAX_LENGTH,
+      options
+    )
+  end
+
+  #assert that the password field has a correct HTML
+  def assert_password_field(password_field_name = "password", options = {})
+    assert_input_field(
+      "password",
+      "user[#{password_field_name}]",
+      nil,
+      User::PASSWORD_SIZE,
+      User::PASSWORD_MAX_LENGTH,
+      options
+    )
+  end
+
+  #assert that the screen name field has a correct HTML
+  def assert_screen_name_field(screen_name = nil, options = {})
+    assert_input_field(
+      "text",
+      "user[screen_name]",
+      screen_name,
+      User::SCREEN_NAME_SIZE,
+      User::SCREEN_NAME_MAX_LENGTH,
+      options
+    )
+  end
 
   #user login function
   def try_to_login(user, options = {})
