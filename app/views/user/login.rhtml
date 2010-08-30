@@ -1,5 +1,5 @@
 <h2>User#Login</h2>
-<% form_for :user do |form| %>
+<% form_for :user, :html => form_before_submition do |form| %>
   <fieldset>
     <legend>Login Form</legend>
     <%= error_messages_for "user" %>
