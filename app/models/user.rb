@@ -1,5 +1,5 @@
 
-require 'digest/sha1'
+require 'digest/md5'
 
 class User < ActiveRecord::Base
 
@@ -24,7 +24,6 @@ class User < ActiveRecord::Base
   validates_uniqueness_of  :screen_name, :email
   validates_confirmation_of :password
   validates_length_of      :screen_name, :within => SCREEN_NAME_RANGE
-  validates_length_of      :password,    :within => PASSWORD_RANGE
   validates_length_of      :email,       :maximum => EMAIL_MAX_LENGTH
   
   #validates_presence_of    :email
@@ -38,12 +37,35 @@ class User < ActiveRecord::Base
                            :message => "must be a valid address"
   
                          
-  #def validate
-  #  errors.add(:email, "must Contain @.") unless email.include? ("@")
-  #  if screen_name.include?(" ")
-  #    errors.add(:screen_name, "can not contain spaces")
-  #  end
-  #end
+  def validate
+    if (PASSWORD_RANGE) === self.password.length
+      self.encrypt_password!
+    else
+      default_errors = ActiveRecord::Errors.default_error_messages
+      #validates_length_of :password, :within => PASSWORD_RANGE
+      if password.length < PASSWORD_MIN_LENGTH
+        errors.add(:password, sprintf(default_errors[:too_short],PASSWORD_MIN_LENGTH))
+      elsif password.length > PASSWORD_MAX_LENGTH
+        errors.add(:password, sprintf(default_errors[:too_long],PASSWORD_MAX_LENGTH))
+      end
+      
+    end
+  end
+
+  #function to encrypt user password
+  def encrypt_password!(password_to_encrypt = nil)
+    if password_to_encrypt.nil?
+      self.password = unique_identifier(password)
+    else
+      return unique_identifier(password_to_encrypt)
+    end
+    
+  end
+
+  #verify users password to be correct on
+  def password_confirm?(password)
+    self.password == unique_identifier(password)
+  end
 
   #log user in
   def login!(session)
@@ -67,7 +89,8 @@ class User < ActiveRecord::Base
     }
     
     self.authorization_token = unique_identifier
-
+    encrypt_password!
+    
     save!
     cookies[:authorization_token] = {
       :value => authorization_token,
@@ -116,8 +139,9 @@ class User < ActiveRecord::Base
   private
 
   #generation of unique session hash
-  def unique_identifier
-    Digest::SHA2.hexdigest("#{screen_name}:#{password}")
+  def unique_identifier(value = nil)
+    encrypted_word = value.nil? ? "#{screen_name}:#{password}" : value
+    Digest::MD5.hexdigest(encrypted_word)
   end
 
 end

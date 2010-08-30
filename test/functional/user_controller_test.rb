@@ -12,7 +12,9 @@ class UserControllerTest < Test::Unit::TestCase
     @controller = UserController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
-    @valid_user = users(:valid_user)
+    temp_user = users(:valid_user)
+    temp_user[:password] = "goodpass"
+    @valid_user = temp_user
   end
 
   def test_screen_name_length_boundaries
@@ -182,7 +184,7 @@ class UserControllerTest < Test::Unit::TestCase
   #test invalid login
   def test_login_failure_with_nonexistent_screen_name
     invalid_user = @valid_user
-    invalid_user.screen_name = "no such user"
+    invalid_user.screen_name = "no such user@"
     try_to_login invalid_user
     assert_template "login"
     assert_equal "Invalid screen name/password combination.", flash[:notice]

@@ -52,6 +52,7 @@ class UserController < ApplicationController
       #raise params[:user].inspect
       
       @user = User.new(params[:user])
+      
       if @user.save
         #render :text => "User Created"
         @user.login!(session)
@@ -72,19 +73,11 @@ class UserController < ApplicationController
     elsif param_posted?(:user)
 
       @user = User.new(params[:user])
-      user = User.find_by_screen_name_and_password(@user.screen_name,@user.password)
+      user = User.find_by_screen_name(@user.screen_name)
 
-      if user
-       
-        #session[:user_id] = user.id
-        #session[:screen_name] = user.screen_name
+      if user and user.password_confirm?(@user.password)
+
         user.login!(session)
-        
-        #if @user.remember_me?
-        #  user.remember_me!(cookies)
-        #else
-        #  user.forget!(cookies)
-        #end
 
         @user.remember_me? ? user.remember!(cookies) : user.forget!(cookies)
         
