@@ -10,6 +10,11 @@ class ApplicationController < ActionController::Base
   # Pick a unique cookie name to distinguish our session data from others'
   session :session_key => '_test_session_id'
 
+  #return true if the parameters to given symbol are posted
+  def param_posted?(symbol)
+    request.post? and params[symbol]
+  end
+
   def check_authorization
     authorization_token = cookies[:authorization_token]
     if authorization_token and not logged_in?

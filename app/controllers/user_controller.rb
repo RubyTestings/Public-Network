@@ -108,11 +108,6 @@ class UserController < ApplicationController
     end
   end
 
-  #return true if the parameters to given symbol are posted
-  def param_posted?(symbol)
-    request.post? and params[symbol]
-  end
-
   #redirecting to Url if it is setted
   def redirect_to_forwarding_url
     if (redirect_url = session[:protected_page])

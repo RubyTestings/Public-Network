@@ -3,6 +3,8 @@ require 'digest/md5'
 
 class User < ActiveRecord::Base
 
+  has_one :spec
+
   SCREEN_NAME_MIN_LENGTH = 4
   SCREEN_NAME_MAX_LENGTH = 20
   PASSWORD_MIN_LENGTH = 4
@@ -48,7 +50,6 @@ class User < ActiveRecord::Base
       elsif password.length > PASSWORD_MAX_LENGTH
         errors.add(:password, sprintf(default_errors[:too_long],PASSWORD_MAX_LENGTH))
       end
-      
     end
   end
 
@@ -89,7 +90,7 @@ class User < ActiveRecord::Base
     }
     
     self.authorization_token = unique_identifier
-    encrypt_password!
+    #encrypt_password!
     
     save!
     cookies[:authorization_token] = {

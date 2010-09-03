@@ -27,7 +27,7 @@ class UserControllerTest < Test::Unit::TestCase
     assert_length :max, @valid_user, :password, User::PASSWORD_MAX_LENGTH
   end
 
-  # Replace this with your real tests.
+  # Testing registration
   def test_registration_page
     get :register
     title = assigns(:title)
@@ -39,6 +39,7 @@ class UserControllerTest < Test::Unit::TestCase
     assert_screen_name_field
     assert_email_field
     assert_password_field
+    assert_password_field "password_confirmation"
     assert_submit_button "Register!"
     
   end
@@ -253,9 +254,9 @@ class UserControllerTest < Test::Unit::TestCase
 
   #test forward back to protected page after registration
   def test_register_friendly_url_forwarding
-    user = { :screen_name => @valid_user.screen_name,
-             :email => @valid_user.email,
-             :password => @valid_user.password
+    user = { :screen_name => "Dobrqitigrenok",
+             :email => "tiger@world.ee",
+             :password => "zeebra123"
            }
     friendly_url_forwarding_aux(:register, :profile, user)
   end

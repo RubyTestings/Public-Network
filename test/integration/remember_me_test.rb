@@ -6,7 +6,9 @@ class RememberMeTest < ActionController::IntegrationTest
   fixtures :users
 
   def setup
-    @user = users(:valid_user)
+    temp_user = users(:valid_user)
+    temp_user[:password] = "goodpass"
+    @user = temp_user
   end
 
   # remeber me test with browser closing
