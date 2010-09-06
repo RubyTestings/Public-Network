@@ -15,6 +15,16 @@ class ApplicationController < ActionController::Base
     request.post? and params[symbol]
   end
 
+  #redirecting in case not logged in
+  def protect
+    unless logged_in?
+      session[:protected_page] = request.request_uri
+      flash[:notice] = "Please log in first"
+      redirect_to :controller => "user", :action => "login"
+      return false
+    end
+  end
+
   def check_authorization
     authorization_token = cookies[:authorization_token]
     if authorization_token and not logged_in?

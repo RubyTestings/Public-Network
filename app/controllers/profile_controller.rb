@@ -2,7 +2,6 @@ class ProfileController < ApplicationController
 
   def index
     @title = "Test Project Profiles"
-
   end
 
   def show

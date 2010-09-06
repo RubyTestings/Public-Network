@@ -2,9 +2,11 @@
   <head>
     <title><%= @title %></title>
     <%= stylesheet_link_tag "site" %>
-
-    <% if ENV["RAILS_ENV"] == "development" %>
-      <%= stylesheet_link_tag "debug" %>
+    <% if current_page?( :controller => "user", :action => "index" ) -%>
+      <%= stylesheet_link_tag "profile" -%>
+    <% end -%>
+    <% if ENV["RAILS_ENV"] == "development" -%>
+      <%= stylesheet_link_tag "debug" -%>
     <% end %>
     
     <%= javascript_include_tag "prototype" %>
@@ -18,7 +20,9 @@
       <div id="navigation">
         <span style="float: right">
           <% if logged_in? -%>
-            Welcome <%= session[:screen_name] %>.
+            Welcome <%= nav_link session[:screen_name],
+                                 :controller => "user",
+                                 :action => "index" %>.
             <%= nav_link  "Logout",   :controller => "user",
                                 :action => "logout"  %>
           <% else -%>
@@ -41,7 +45,9 @@
         <% if flash[:notice] -%>
         <div id="notice"><%= flash[:notice] %></div>
         <% end -%>
-        <%= @content_for_layout %>
+        <!--<%= @content_for_layout %>-->
+        <%= yield %>
+        <br clear="all" />
       </div>
     </div>
 

@@ -1,5 +1,15 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-one:
+valid_spec:
   id: 1
-two:
+  user_id: 1
+  first_name: Tjapa
+  last_name: Tipa
+  gender: Male
+  birthdate: 1980-11-1
+  occupation: LazyJob
+  city: Nowhere
+  state:  NA
+  zip_code: 12365
+invalid_spec:
   id: 2
+  user_id: 2

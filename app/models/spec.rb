@@ -15,13 +15,25 @@ class Spec < ActiveRecord::Base
                       :maximum => DB_STRING_MAX_LENGTH
   validates_inclusion_of :gender,
                          :in => VALID_GENDERS,
-                         :allows_nil => true,
+                         :allow_nil => true,
                          :message => "must be male or female"
-  validates_inclusion_of :birth,
+  validates_inclusion_of :birthdate,
                          :in => VALID_DATES,
-                         :allows_nil => true,
+                         :allow_nil => true,
                          :message => "is invalid"
   validates_format_of :zip_code,
                       :with => /(^$|^[0-9]{#{ZIP_CODE_LENGTH}}$)/,
                       :message => "must be a five digit number"
+
+ #return users full name
+ def full_name
+   [first_name, last_name].join(" ")
+ end
+
+ #return users location as a single string
+ def location(symbol = nil)
+   symbol ||= " "
+   [city, state, zip_code].join(symbol)
+ end
+
 end

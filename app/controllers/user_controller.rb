@@ -3,6 +3,7 @@ class UserController < ApplicationController
 
   #layout "site"
   #include ApplicationHelper
+  helper :profile
 
   #before_filter :protect, :only => :index
   before_filter :protect, :except => [ :login, :register ]
@@ -11,6 +12,8 @@ class UserController < ApplicationController
 
     @title = "Main Page"
     @user = User.find(session[:user_id])
+    @user ||= Spec.new
+    @spec = @user.spec
 
   end
 
@@ -97,16 +100,6 @@ class UserController < ApplicationController
   end
 
   private
-
-  #redirecting in case not logged in
-  def protect
-    unless logged_in?
-      session[:protected_page] = request.request_uri
-      flash[:notice] = "Please log in first"
-      redirect_to :action => "login"
-      return false
-    end
-  end
 
   #redirecting to Url if it is setted
   def redirect_to_forwarding_url

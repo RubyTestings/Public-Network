@@ -17,9 +17,9 @@ ActiveRecord::Schema.define(:version => 5) do
     t.column "user_id",    :integer,                 :null => false
     t.column "first_name", :string,  :default => ""
     t.column "last_name",  :string,  :default => ""
-    t.column "gendre",     :string
+    t.column "gender",     :string
     t.column "birthdate",  :date
-    t.column "ossupation", :string,  :default => ""
+    t.column "occupation", :string,  :default => ""
     t.column "city",       :string,  :default => ""
     t.column "state",      :string,  :default => ""
     t.column "zip_code",   :string,  :default => ""
