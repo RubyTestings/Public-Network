@@ -4,6 +4,7 @@ require 'digest/md5'
 class User < ActiveRecord::Base
 
   has_one :spec
+  has_one :faq
 
   SCREEN_NAME_MIN_LENGTH = 4
   SCREEN_NAME_MAX_LENGTH = 20

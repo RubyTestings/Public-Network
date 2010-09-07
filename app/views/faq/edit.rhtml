@@ -1,0 +1,13 @@
+<h1>Basic Questions</h1>
+<p>Please fill the form below</p>
+<% form_for :faq do |form| -%>
+<fieldset>
+  <legend>Update you faq</legend>
+  <%= error_messages_for 'faq' %>
+  <%= render :partial => "answer_text_area", :collection => Faq::QUESTIONS,
+             :locals => { :form => form } %>
+  <br clear="all" />
+  <%= submit_tag "Update All", :class => "submit" %>
+</fieldset>
+<% end %>
+

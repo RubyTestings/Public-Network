@@ -12,8 +12,9 @@ class UserController < ApplicationController
 
     @title = "Main Page"
     @user = User.find(session[:user_id])
-    @user ||= Spec.new
-    @spec = @user.spec
+    
+    @spec = @user.spec ||= Spec.new
+    @faq = @user.faq ||= Faq.new
 
   end
 

@@ -1,10 +1,7 @@
 <html>
   <head>
     <title><%= @title %></title>
-    <%= stylesheet_link_tag "site" %>
-    <% if current_page?( :controller => "user", :action => "index" ) -%>
-      <%= stylesheet_link_tag "profile" -%>
-    <% end -%>
+    <%= upload_additional_css %>
     <% if ENV["RAILS_ENV"] == "development" -%>
       <%= stylesheet_link_tag "debug" -%>
     <% end %>
@@ -45,7 +42,6 @@
         <% if flash[:notice] -%>
         <div id="notice"><%= flash[:notice] %></div>
         <% end -%>
-        <!--<%= @content_for_layout %>-->
         <%= yield %>
         <br clear="all" />
       </div>

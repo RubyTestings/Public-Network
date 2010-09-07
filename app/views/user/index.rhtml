@@ -38,6 +38,7 @@
       </table>
     </div>
   </div>
+  <%= render :partial => 'faq/sidebar_box', :collection => Faq::DETAILS %>
 </div>
 <div id="main_content">
   <div id="full_name">
@@ -56,4 +57,11 @@
   <hr noshade />
   Profile URL: <%= link_to profile_for(@user), profile_for(@user) %>
   <hr noshade />
+  Description:
+  <span class="edit_link">
+    <%= link_to "edit", :controller => 'faq', :action => "edit"  %>
+  </span>
+  <div id="bio" class="faq_answer">
+    <%= sanitize @faq.bio %>
+  </div>
 </div>

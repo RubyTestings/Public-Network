@@ -9,6 +9,8 @@ class ProfileController < ApplicationController
     @user = User.find_by_screen_name(screen_name)
     if @user
       @title = "Test Project profile for user #{screen_name}"
+      @spec = @user.spec ||= Spec.new
+      @faq = @user.faq ||= Faq.new
     else
       flash[:notice] = "No user with screen name #{screen_name} found."
       redirect_to :action => "index"

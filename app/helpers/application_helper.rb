@@ -25,4 +25,39 @@ module ApplicationHelper
   def logged_in?
     not session[:user_id].nil?
   end
+  
+  #this function returns a set of css files for for each page
+  def upload_additional_css(alternative_css_list = nil)
+    
+    css_files_list = alternative_css_list || {
+      :site => { :any => true },
+      :profile => [{:controller => "user", :action => "index"},
+                   {:controller => "faq", :action => "edit"},
+                   {:controller => "profile", :action => "show"}]
+    }
+
+    css_upload_set = ""
+
+    css_files_list.each_pair do |css_file, allowed_pages|
+
+      if allowed_pages.kind_of? Hash
+        allowed_pages.each_pair do |key, value|
+          if key == :any and value == true
+            css_upload_set += stylesheet_link_tag css_file.to_s
+          end
+        end
+      elsif allowed_pages.kind_of? Array
+        allowed_pages.each do |allowed_page|
+          if current_page?( allowed_page )
+            css_upload_set += stylesheet_link_tag css_file.to_s
+          end
+        end
+      else
+        #should be some errors
+      end
+    end
+
+    css_upload_set
+  end
+  
 end
