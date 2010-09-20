@@ -1,6 +1,8 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   require 'string'
+  require 'will_paginate_ext'
+  require 'ThinkingSphinx_Search'
 
   #returns HTML text for text field
   def text_field_for( form, field,
@@ -18,6 +20,7 @@ module ApplicationHelper
 
   #generates links for site navigation
   def nav_link(text, options)
+    options[:action] ||= "index"
     link_to_unless_current text, options
   end
 
@@ -27,8 +30,12 @@ module ApplicationHelper
   end
   
   #this function returns a set of css files for for each page
+  #this function is unfinished
   def upload_additional_css(alternative_css_list = nil)
-    
+
+    ##
+    # :css_file_name => array of hashes or hash with parameters
+    ##
     css_files_list = alternative_css_list || {
       :site => { :any => true },
       :profile => [{:controller => "user", :action => "index"},

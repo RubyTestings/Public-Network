@@ -1,0 +1,8 @@
+<% if @users -%>
+<p>
+  Found <%=  @users.total_entries %> match{es}.
+  <% if @users.paginated? -%>
+  Displaying users <%= @users.first_item %> &ndash; <%= @users.last_item %>
+  <% end -%>
+</p>
+<% end -%>

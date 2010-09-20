@@ -3,4 +3,8 @@
 !db/
 !public/
 !test/
+!lib/
+!config/environment.rb
+!config/routes.rb
+!vendor/plugins/
 !README

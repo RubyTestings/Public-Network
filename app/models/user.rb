@@ -6,6 +6,14 @@ class User < ActiveRecord::Base
   has_one :spec
   has_one :faq
 
+  define_index do
+    indexes :screen_name, :as => :name, :sortable => true
+    indexes :email, :sortable => true
+
+    has created_at,	updated_at
+    has spec(:gender)
+  end
+  
   SCREEN_NAME_MIN_LENGTH = 4
   SCREEN_NAME_MAX_LENGTH = 20
   PASSWORD_MIN_LENGTH = 4
@@ -23,7 +31,7 @@ class User < ActiveRecord::Base
 
   attr_accessor   :remember_me
   attr_accessor   :current_password
-  
+
   validates_uniqueness_of  :screen_name, :email
   validates_confirmation_of :password
   validates_length_of      :screen_name, :within => SCREEN_NAME_RANGE
@@ -136,6 +144,11 @@ class User < ActiveRecord::Base
     self.password_confirmation = params[:user][:password_confirmation]
     valid?
     errors.add(:current_password, "is incorrect")
+  end
+
+  #return a users full name or in case it's empty users screen name
+  def name
+    spec.full_name.or_else(screen_name)
   end
 
   private

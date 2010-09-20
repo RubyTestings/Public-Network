@@ -1,5 +1,14 @@
 class Faq < ActiveRecord::Base
   belongs_to :user
+#
+#  define_index do
+#    indexes :bio
+#    indexes :education
+#    indexes :skills
+#    indexes :projects
+#    indexes :prizes
+#    indexes :interests
+#  end
 
   QUESTIONS = %w(bio education skills projects prizes interests)
   DETAILS = QUESTIONS - %w(bio)
